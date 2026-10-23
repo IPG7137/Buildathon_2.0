@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QualityGuard AI – Industrial Quality Inspection & Defect Tracking System</title>
+  <meta name="description" content="AI-Powered Industrial Product Quality Inspection, Defect Tracking, Live Camera Studio & Auditable Compliance System." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+<!-- Login overlay -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">🛡️</div>
+      <h1>QualityGuard AI</h1>
+      <p>Industrial Quality Control & Defect Tracking Platform</p>
+    </div>
+    <form id="login-form" class="login-form">
+      <div class="form-group">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="manager1" autocomplete="username" required />
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <div id="login-error" class="error-msg hidden"></div>
+      <button type="submit" class="btn-primary btn-full" id="login-btn">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-spinner hidden">⟳</span>
+      </button>
+    </form>
+    <div class="demo-creds">
+      <p>Click role to fill demo credentials:</p>
+      <div class="cred-list">
+        <span class="cred-tag" onclick="fillCreds('manager1','Manager@PS01Demo')">Quality Manager</span>
+        <span class="cred-tag" onclick="fillCreds('reviewer1','Reviewer@PS01Demo')">QC Reviewer</span>
+        <span class="cred-tag" onclick="fillCreds('operator1','Operator@PS01Demo')">Inspector / Operator</span>
+        <span class="cred-tag" onclick="fillCreds('admin','Admin@PS01Demo')">System Admin</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- App shell -->
+<div id="app-shell" class="app-shell hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">🛡️</span>
+        <div>
+          <div class="brand-name">QualityGuard AI</div>
+          <div class="brand-sub">Industrial Command Center</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Monitor</div>
+      <a href="#" class="nav-item active" data-page="overview" id="nav-overview">
+        <span class="nav-icon">📊</span><span>Overview</span>
+      </a>
+      <a href="#" class="nav-item" data-page="analytics" id="nav-analytics">
+        <span class="nav-icon">📈</span><span>Analytics & Trends</span>
+      </a>
+      <a href="#" class="nav-item" data-page="audit" id="nav-audit">
+        <span class="nav-icon">📜</span><span>Audit Ledger</span>
+      </a>
+
+      <div class="nav-section-label">Quality Control</div>
+      <a href="#" class="nav-item highlight" data-page="live-studio" id="nav-live-studio">
+        <span class="nav-icon">📷</span><span>Live Inspection</span>
+        <span class="nav-badge live-badge">STUDIO</span>
+      </a>
+      <a href="#" class="nav-item" data-page="inspections" id="nav-inspections">
+        <span class="nav-icon">🔍</span><span>Inspections</span>
+        <span class="nav-badge" id="badge-inspections">0</span>
+      </a>
+      <a href="#" class="nav-item" data-page="review-queue" id="nav-review-queue">
+        <span class="nav-icon">📋</span><span>Smart Review Queue</span>
+        <span class="nav-badge urgent" id="badge-reviews">0</span>
+      </a>
+      <a href="#" class="nav-item" data-page="products" id="nav-products">
+        <span class="nav-icon">📐</span><span>Products</span>
+      </a>
+      <a href="#" class="nav-item" data-page="batches" id="nav-batches">
+        <span class="nav-icon">📦</span><span>Batches & Holds</span>
+      </a>
+      <a href="#" class="nav-item" data-page="corrective-actions" id="nav-corrective-actions">
+        <span class="nav-icon">🔧</span><span>CAPA & Reinspection</span>
+        <span class="nav-badge warn" id="badge-ca">0</span>
+      </a>
+
+      <div class="nav-section-label">Intelligence</div>
+      <a href="#" class="nav-item" data-page="assistant" id="nav-assistant">
+        <span class="nav-icon">🤖</span><span>Quality Copilot</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info" id="sidebar-user">
+        <div class="user-avatar" id="user-avatar-text">M</div>
+        <div>
+          <div class="user-name" id="sidebar-username">Loading...</div>
+          <div class="user-role" id="sidebar-role">-</div>
+        </div>
+      </div>
+      <button class="btn-icon" id="logout-btn" title="Sign out">⏏</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content" id="main-content">
+    <header class="top-bar">
+      <button class="btn-icon sidebar-toggle" id="sidebar-toggle">☰</button>
+      <div class="page-title" id="page-title">Overview</div>
+      <div class="top-bar-actions">
+        <button class="btn-sm btn-report-nav" id="btn-open-report">📑 Executive Report</button>
+        <div class="model-status" id="model-status-badge">
+          <span class="status-dot" id="model-status-dot"></span>
+          <span id="model-status-text">Checking model...</span>
+        </div>
+        <div class="date-filter" id="date-filter-container">
+          <select id="date-preset" class="select-sm">
+            <option value="today">Today</option>
+            <option value="7d" selected>Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="custom">Custom</option>
+          </select>
+          <div id="custom-range" class="custom-range hidden">
+            <input type="date" id="date-from" class="input-sm" />
+            <span>to</span>
+            <input type="date" id="date-to" class="input-sm" />
+            <button class="btn-sm" id="apply-range">Apply</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Pages -->
+
+    <!-- Overview page -->
+    <div id="page-overview" class="page active">
+      
+      <!-- Quick Hero Action Banner -->
+      <div class="hero-action-card">
+        <div class="hero-action-left">
+          <div class="hero-badge">AI-POWERED DEFECT INSPECTION</div>
+          <h2>Ready for Live Inspection</h2>
+          <p>Launch live video stream with rear-facing camera, 2-second capture countdown, and real MobileNetV3 inference, or test with curated dataset samples.</p>
+        </div>
+        <div class="hero-action-right">
+          <button class="btn-hero-primary" onclick="navigateTo('live-studio')">
+            <span>📷</span> Start Live Inspection Studio
+          </button>
+          <button class="btn-hero-ghost" onclick="navigateTo('review-queue')">
+            <span>📋</span> Priority Queue (<span id="hero-queue-count">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="kpi-grid">
+        <div class="kpi-card" id="kpi-total">
+          <div class="kpi-label">Total Inspections</div>
+          <div class="kpi-value" id="kpi-val-total">—</div>
+          <div class="kpi-sub">in selected period</div>
+        </div>
+        <div class="kpi-card good" id="kpi-good">
+          <div class="kpi-label">Good Predictions</div>
+          <div class="kpi-value" id="kpi-val-good">—</div>
+          <div class="kpi-sub">model predicted GOOD</div>
+        </div>
+        <div class="kpi-card defect" id="kpi-defect">
+          <div class="kpi-label">Defects Suspected</div>
+          <div class="kpi-value" id="kpi-val-defect">—</div>
+          <div class="kpi-sub">model predicted DEFECT</div>
+        </div>
+        <div class="kpi-card warn" id="kpi-review">
+          <div class="kpi-label">Pending Review</div>
+          <div class="kpi-value" id="kpi-val-review">—</div>
+          <div class="kpi-sub">awaiting human assessment</div>
+        </div>
+        <div class="kpi-card" id="kpi-confirmed-good">
+          <div class="kpi-label">Confirmed Good</div>
+          <div class="kpi-value" id="kpi-val-conf-good">—</div>
+          <div class="kpi-sub">human-reviewed outcome</div>
+        </div>
+        <div class="kpi-card defect" id="kpi-confirmed-defect">
+          <div class="kpi-label">Confirmed Defect</div>
+          <div class="kpi-value" id="kpi-val-conf-defect">—</div>
+          <div class="kpi-sub">human-reviewed outcome</div>
+        </div>
+        <div class="kpi-card warn" id="kpi-ca">
+          <div class="kpi-label">Open Actions</div>
+          <div class="kpi-value" id="kpi-val-ca">—</div>
+          <div class="kpi-sub">corrective actions open</div>
+        </div>
+        <div class="kpi-card critical" id="kpi-hold">
+          <div class="kpi-label">Batches On Hold</div>
+          <div class="kpi-value" id="kpi-val-hold">—</div>
+          <div class="kpi-sub">quality_status = on_hold</div>
+        </div>
+        <div class="kpi-card rate" id="kpi-rate">
+          <div class="kpi-label">Defect Rate</div>
+          <div class="kpi-value" id="kpi-val-rate">—%</div>
+          <div class="kpi-sub">DEFECT predictions ÷ total inspections</div>
+        </div>
+      </div>
+
+      <div class="note-card" id="metric-note">
+        <span class="note-icon">ℹ️</span>
+        <span>Predictions reflect real MobileNetV3 ML model inference. <strong>Confirmed Good/Defect</strong> reflects authoritative human QC sign-off. An AI prediction does NOT automatically release or hold a production batch.</span>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Daily Inspection Volume</h3>
+            <span class="chart-subtitle">Predictions per day</span>
+          </div>
+          <canvas id="chart-daily" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Prediction Distribution</h3>
+            <span class="chart-subtitle">Current period</span>
+          </div>
+          <canvas id="chart-distribution" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Corrective Actions Status</h3>
+          </div>
+          <canvas id="chart-ca" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Batch Defect Rates</h3>
+          </div>
+          <canvas id="chart-batches" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Inspection Studio page (Priority Hackathon Feature) -->
+    <div id="page-live-studio" class="page hidden">
+      <div class="studio-container">
+        
+        <!-- Controls Bar -->
+        <div class="studio-header">
+          <div>
+            <h2>Industrial Inspection Studio</h2>
+            <p>Live camera stream with 2-second capture countdown, photo upload, and one-click dataset test samples.</p>
+          </div>
+          <div class="studio-mode-toggles">
+            <button class="mode-toggle-btn active" id="tab-camera-mode" onclick="switchStudioMode('camera')">
+              <span>📹</span> Live Camera
+            </button>
+            <button class="mode-toggle-btn" id="tab-upload-mode" onclick="switchStudioMode('upload')">
+              <span>📁</span> Upload Image
+            </button>
+            <button class="mode-toggle-btn" id="tab-sample-mode" onclick="switchStudioMode('sample')">
+              <span>🧪</span> Dataset Samples
+            </button>
+          </div>
+        </div>
+
+        <!-- Product & Batch Selector -->
+        <div class="studio-config-card">
+          <div class="config-grid">
+            <div class="form-group">
+              <label>Product Catalog *</label>
+              <select id="studio-product-select" class="select-sm">
+                <option value="">Loading products...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Target Production Batch *</label>
+              <select id="studio-batch-select" class="select-sm">
+                <option value="">Loading batches...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Serial / Item Number (optional)</label>
+              <input type="text" id="studio-serial" class="input-sm" placeholder="e.g. SN-STEEL-9482" />
+            </div>
+            <div class="form-group">
+              <label>Inspection Session ID</label>
+              <input type="text" id="studio-session-id" class="input-sm" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-workspace">
+          
+          <!-- Left: Viewport / Capture Panel -->
+          <div class="studio-viewport-card">
+            
+            <!-- Sub-view 1: Camera Viewport -->
+            <div id="studio-view-camera" class="studio-view-mode">
+              <div class="camera-viewport-wrap">
+                <video id="studio-video" autoplay muted playsinline></video>
+                <canvas id="studio-canvas" class="hidden"></canvas>
+                <img id="studio-captured-preview" class="hidden" alt="Captured Frame" />
+                
+                <!-- Crosshairs & Reticle -->
+                <div class="camera-reticle" id="studio-reticle">
+                  <div class="reticle-corner tl"></div>
+                  <div class="reticle-corner tr"></div>
+                  <div class="reticle-corner bl"></div>
+                  <div class="reticle-corner br"></div>
+                  <div class="reticle-center-cross"></div>
+                  <div class="reticle-hint">POSITION PRODUCT WITHIN FRAME</div>
+                </div>
+
+                <!-- 2-Second Countdown Overlay -->
+                <div id="studio-countdown-overlay" class="countdown-overlay hidden">
+                  <div class="countdown-number" id="countdown-number">2</div>
+                  <div class="countdown-label">HOLD STEADY FOR CAPTURE</div>
+                </div>
+
+                <div id="studio-camera-error" class="camera-error-pill hidden">
+                  <span>⚠️ Camera error. Grant browser permission or switch to Upload mode.</span>
+                </div>
+              </div>
+
+              <!-- Camera Controls -->
+              <div class="camera-action-bar">
+                <button class="btn-sm ghost" id="btn-flip-camera" onclick="flipStudioCamera()" title="Switch Front/Back Camera">
+                  🔄 Switch Camera
+                </button>
+                <button class="btn-capture-primary" id="btn-start-countdown" onclick="trigger2sCapture()">
+                  <span class="rec-dot"></span> Capture Frame (2s Delay)
+                </button>
+                <div class="capture-review-actions hidden" id="studio-review-actions">
+                  <button class="btn-sm ghost" onclick="retakeStudioCapture()">🔄 Retake</button>
+                  <button class="btn-sm btn-accept" onclick="acceptAndRunInference()">🔬 Run AI Inspection</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sub-view 2: Upload Mode -->
+            <div id="studio-view-upload" class="studio-view-mode hidden">
+              <div class="drop-zone" id="studio-dropzone">
+                <input type="file" id="studio-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                <div id="dropzone-prompt">
+                  <div class="dropzone-icon">📥</div>
+                  <h4>Drag and drop industrial product image here</h4>
+                  <p>Supports JPG, PNG, WebP up to 20 MB</p>
+                  <button class="btn-sm btn-browse" onclick="$('studio-file-input').click()">Browse Files</button>
+                </div>
+                <div id="dropzone-preview" class="hidden">
+                  <img id="upload-preview-img" alt="Upload preview" />
+                  <div class="preview-meta">
+                    <span id="upload-meta-name">image.jpg</span> • 
+                    <span id="upload-meta-size">120 KB</span>
+                    <button class="btn-sm ghost" onclick="clearUploadFile()">Remove</button>
+                  </div>
+                  <button class="btn-primary btn-full" id="btn-inspect-upload" onclick="runUploadInference()">
+                    🔬 Run AI Inspection
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sub-view 3: Quick Test Sample Images -->
+            <div id="studio-view-sample" class="studio-view-mode hidden">
+              <div class="sample-picker-header">
+                <h4>Select Curated Dataset Sample</h4>
+                <p>One-click evaluation with real Severstal Steel and Casting Defect samples.</p>
+              </div>
+              <div class="sample-grid" id="studio-sample-grid">
+                <div class="empty-state">Loading curated sample images...</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right: Real-time AI Inference Results -->
+          <div class="studio-result-card">
+            <div class="result-card-header">
+              <h3>Live ML Prediction</h3>
+              <span class="badge badge-muted" id="studio-infer-mode">AWAITING IMAGE</span>
+            </div>
+
+            <div id="studio-result-empty" class="result-empty-state">
+              <div class="empty-icon">🔬</div>
+              <p>Capture a frame via camera, upload an image, or click a sample to see live PyTorch MobileNetV3 inference.</p>
+            </div>
+
+            <div id="studio-result-content" class="result-content-wrap hidden">
+              
+              <!-- Verdict Badge Banner -->
+              <div class="verdict-banner" id="verdict-banner">
+                <div class="verdict-icon" id="verdict-icon">✅</div>
+                <div>
+                  <div class="verdict-title" id="verdict-title">GOOD</div>
+                  <div class="verdict-subtitle" id="verdict-subtitle">No surface defects detected</div>
+                </div>
+              </div>
+
+              <!-- Confidence Bars -->
+              <div class="metrics-block">
+                <div class="metric-row">
+                  <span>Defect Probability</span>
+                  <span class="metric-val" id="metric-defect-score">0.0%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill defect" id="bar-defect-fill" style="width:0%"></div>
+                </div>
+
+                <div class="metric-row">
+                  <span>Good Probability</span>
+                  <span class="metric-val" id="metric-good-score">0.0%</span>
+                </div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill good" id="bar-good-fill" style="width:0%"></div>
+                </div>
+              </div>
+
+              <!-- Model Details Grid -->
+              <div class="tech-details-grid">
+                <div>
+                  <label>Inspection ID</label>
+                  <span class="mono-text" id="res-insp-id">—</span>
+                </div>
+                <div>
+                  <label>Model Checkpoint</label>
+                  <span id="res-model-ver">MobileNetV3-Small v1.0.0</span>
+                </div>
+                <div>
+                  <label>Inference Latency</label>
+                  <span id="res-latency">18 ms (CPU)</span>
+                </div>
+                <div>
+                  <label>QC Review Status</label>
+                  <span id="res-qc-status" class="badge badge-warn">under_review</span>
+                </div>
+              </div>
+
+              <div class="disclaimer-callout">
+                ⚠️ <strong>Auditable Traceability:</strong> This prediction is stored in the database. An authorized QC reviewer must confirm or reject the finding in the Smart Review Queue before any batch release.
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="result-action-row">
+                <button class="btn-primary" onclick="navigateTo('review-queue')">
+                  📋 Open Review Queue
+                </button>
+                <button class="btn-secondary" id="btn-create-ca-from-insp" onclick="openCreateCAModalFromCurrent()">
+                  🔧 Open CAPA Ticket
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Analytics page -->
+    <div id="page-analytics" class="page hidden">
+      <div class="chart-row full">
+        <div class="chart-card wide">
+          <div class="chart-header">
+            <h3>7-Day Trend: Good vs Defect Predictions</h3>
+          </div>
+          <canvas id="chart-trend" height="80"></canvas>
+        </div>
+      </div>
+      <div class="chart-row full">
+        <div class="chart-card wide">
+          <div class="chart-header">
+            <h3>Daily Defect Rate (%)</h3>
+          </div>
+          <canvas id="chart-defect-rate" height="80"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inspections page -->
+    <div id="page-inspections" class="page hidden">
+      <div class="table-controls">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="insp-search" placeholder="Search by batch, ID, operator..." />
+        </div>
+        <div class="filter-row">
+          <select id="insp-filter-prediction" class="select-sm">
+            <option value="">All Predictions</option>
+            <option value="GOOD">GOOD</option>
+            <option value="DEFECT">DEFECT</option>
+            <option value="UNCERTAIN">UNCERTAIN</option>
+          </select>
+          <select id="insp-filter-status" class="select-sm">
+            <option value="">All Statuses</option>
+            <option value="completed">Completed</option>
+            <option value="under_review">Under Review</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="failed">Failed</option>
+          </select>
+          <button class="btn-sm" id="insp-filter-apply">Filter</button>
+          <button class="btn-sm ghost" id="insp-refresh">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="inspections-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Time</th><th>Batch</th><th>Operator</th>
+              <th>Mode</th><th>Prediction</th><th>Score</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inspections-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="inspections-pagination"></div>
+    </div>
+
+    <!-- Smart Review Priority Queue page -->
+    <div id="page-review-queue" class="page hidden">
+      <div class="section-header-flex">
+        <div>
+          <h2>Smart Review Priority Queue</h2>
+          <p>Explainable 0–100 risk prioritization based on model uncertainty, defect probability, batch hold status, and recurrence patterns.</p>
+        </div>
+        <div class="queue-sort-wrap">
+          <label>Sort By:</label>
+          <select id="queue-sort" class="select-sm" onchange="renderReviewQueueCards()">
+            <option value="priority" selected>Highest Priority Score (0-100)</option>
+            <option value="score_desc">Highest Defect Score</option>
+            <option value="newest">Newest First</option>
+          </select>
+          <button class="btn-sm ghost" onclick="loadReviewQueue()">↻ Refresh Queue</button>
+        </div>
+      </div>
+      <div id="review-queue-list" class="review-queue-list">
+        <div class="empty-state">Loading smart review queue...</div>
+      </div>
+    </div>
+
+    <!-- Products page -->
+    <div id="page-products" class="page hidden">
+      <div class="table-controls">
+        <div>
+          <h2>Product Catalog & Quality Thresholds</h2>
+          <p>Registered products with inspection specifications and defect tolerances.</p>
+        </div>
+        <button class="btn-primary" id="btn-add-product" onclick="openNewProductModal()">+ Register Product</button>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="products-table">
+          <thead>
+            <tr>
+              <th>Product Code / SKU</th><th>Product Name</th><th>Category</th>
+              <th>Defect Threshold</th><th>Inspection Criteria</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Batches page -->
+    <div id="page-batches" class="page hidden">
+      <div class="table-controls">
+        <button class="btn-primary" id="create-batch-btn" onclick="openNewBatchModal()">+ New Batch</button>
+        <select id="batch-filter-status" class="select-sm">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in_inspection">In Inspection</option>
+          <option value="on_hold">On Hold</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button class="btn-sm" id="batch-refresh">↻ Refresh</button>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="batches-table">
+          <thead>
+            <tr>
+              <th>Batch Code</th><th>Product</th><th>Line</th><th>Qty</th>
+              <th>Inspections</th><th>Defects</th><th>Status</th><th>Created</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="batches-tbody"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="batches-pagination"></div>
+    </div>
+
+    <!-- Corrective Actions page -->
+    <div id="page-corrective-actions" class="page hidden">
+      <div class="table-controls">
+        <div class="filter-row">
+          <select id="ca-filter-status" class="select-sm">
+            <option value="">All Statuses</option>
+            <option value="open">Open</option>
+            <option value="in_progress">In Progress</option>
+            <option value="awaiting_reinspection">Awaiting Reinspection</option>
+            <option value="resolved">Resolved</option>
+            <option value="closed">Closed</option>
+            <option value="reopened">Reopened</option>
+          </select>
+          <select id="ca-filter-priority" class="select-sm">
+            <option value="">All Priorities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <button class="btn-sm" id="ca-refresh">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="ca-table">
+          <thead>
+            <tr>
+              <th>Title & Root Cause</th><th>Priority</th><th>Status</th>
+              <th>Assigned To</th><th>Reinspection</th><th>Due Date</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ca-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Audit Ledger page -->
+    <div id="page-audit" class="page hidden">
+      <div class="table-controls">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" id="audit-search" placeholder="Search audit trail by actor, action, entity..." />
+        </div>
+        <button class="btn-sm ghost" onclick="loadAuditEvents()">↻ Refresh Ledger</button>
+      </div>
+      <div class="table-container">
+        <table class="data-table" id="audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th><th>Actor</th><th>Action</th><th>Entity</th><th>Entity ID</th><th>Reason / Details</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Assistant page -->
+    <div id="page-assistant" class="page hidden">
+      <div class="assistant-container">
+        <div class="assistant-header">
+          <div class="assistant-icon">🤖</div>
+          <div>
+            <h2>QualityGuard Copilot</h2>
+            <p>Grounded generative intelligence answering from auditable factory records with exact entity citations.</p>
+          </div>
+        </div>
+        
+        <div class="quick-prompts-bar">
+          <span class="prompt-chip" onclick="askCopilot('Summarise the defects found in batch BATCH-2026-001')">
+            📦 Defects in BATCH-2026-001
+          </span>
+          <span class="prompt-chip" onclick="askCopilot('Which corrective actions are overdue?')">
+            ⏰ Overdue CAPA Actions
+          </span>
+          <span class="prompt-chip" onclick="askCopilot('Which inspections still require human review?')">
+            📋 Pending Reviews
+          </span>
+          <span class="prompt-chip" onclick="askCopilot('Which confirmed defects have recurred most frequently?')">
+            🔁 Recurring Defect Patterns
+          </span>
+          <span class="prompt-chip" onclick="askCopilot('Which batches are currently on hold?')">
+            🛑 Quarantined Batches
+          </span>
+          <span class="prompt-chip" onclick="askCopilot('Which defects are awaiting reinspection?')">
+            🔄 Awaiting Reinspection
+          </span>
+        </div>
+
+        <div class="assistant-caveat">
+          <strong>⚠️ Grounding Guardrail:</strong> QualityGuard Copilot retrieves verifiable database records only. It cannot unilaterally release batches or approve inspection results.
+        </div>
+        
+        <div class="chat-window" id="chat-window">
+          <div class="chat-message bot">
+            <span class="chat-icon">🤖</span>
+            <div class="chat-bubble">
+              Welcome to <strong>QualityGuard Copilot</strong>. I am directly connected to your persistent quality ledger and trained MobileNetV3 inspection engine. 
+              Click any quick prompt above or ask a question regarding batches, defect recurrence, or open corrective actions.
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="assistant-input" placeholder="Ask about batches, inspections, overdue CAPAs..." />
+          <button class="btn-primary" id="assistant-send">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Modals -->
+
+<!-- Modal 1: Inspection Detail -->
+<div id="modal-overlay" class="modal-overlay hidden">
+  <div class="modal modal-lg" id="modal-inspection-detail">
+    <div class="modal-header">
+      <h3 id="modal-insp-title">Inspection Detail</h3>
+      <button class="btn-icon modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-insp-body"></div>
+  </div>
+</div>
+
+<!-- Modal 2: Human Review & Defect Confirmation -->
+<div id="modal-review-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-review">
+    <div class="modal-header">
+      <h3>Authoritative QC Review</h3>
+      <button class="btn-icon modal-close-review">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="modal-review-insp-info" class="review-insp-info"></div>
+      <form id="review-form">
+        <input type="hidden" id="review-inspection-id" />
+        <div class="form-group">
+          <label>Human-Confirmed Quality Outcome *</label>
+          <div class="radio-group">
+            <label class="radio-label good-radio">
+              <input type="radio" name="confirmed_class" value="GOOD" required /> ✅ GOOD — No Defect (Pass)
+            </label>
+            <label class="radio-label defect-radio">
+              <input type="radio" name="confirmed_class" value="DEFECT" required /> ❌ DEFECT — Confirm Defect
+            </label>
+            <label class="radio-label inconclusive-radio">
+              <input type="radio" name="confirmed_class" value="INCONCLUSIVE" required /> ❓ INCONCLUSIVE — Need Secondary Opinion
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="review-reason">Verification Reason / Rationale *</label>
+          <input type="text" id="review-reason" placeholder="e.g. Confirmed longitudinal surface crack on line weld seam" required />
+        </div>
+        <div class="form-group">
+          <label for="review-notes">Inspection Observations & Notes (optional)</label>
+          <textarea id="review-notes" rows="3" placeholder="Enter metallurgical notes or operator feedback..."></textarea>
+        </div>
+        <div id="review-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-review">Cancel</button>
+          <button type="submit" class="btn-primary">Submit QC Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: Batch Disposition (Hold / Release) -->
+<div id="modal-batch-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-batch-disposition">
+    <div class="modal-header">
+      <h3 id="modal-batch-title">Batch Quality Disposition</h3>
+      <button class="btn-icon modal-close-batch">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="batch-disposition-form">
+        <input type="hidden" id="batch-disp-id" />
+        <div class="form-group">
+          <label>Disposition Decision *</label>
+          <select id="batch-disp-status" class="select-sm" required>
+            <option value="approved">✅ Release Batch (Approved)</option>
+            <option value="on_hold">🛑 Quarantine Batch (On Hold)</option>
+            <option value="rejected">❌ Reject Batch</option>
+            <option value="in_inspection">🔍 Continue In-Inspection</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="batch-disp-reason">Authorized Justification / Reason *</label>
+          <textarea id="batch-disp-reason" rows="3" placeholder="State reason for hold or release sign-off..." required></textarea>
+        </div>
+        <div id="batch-disp-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-batch">Cancel</button>
+          <button type="submit" class="btn-primary">Confirm Disposition</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: Side-by-Side CAPA & Before/After Repair Evidence -->
+<div id="modal-ca-detail-overlay" class="modal-overlay hidden">
+  <div class="modal modal-lg" id="modal-ca-detail">
+    <div class="modal-header">
+      <h3 id="modal-ca-title">Corrective Action & Repair Evidence</h3>
+      <button class="btn-icon modal-close-ca">✕</button>
+    </div>
+    <div class="modal-body" id="modal-ca-body"></div>
+  </div>
+</div>
+
+<!-- Modal 5: Upload Repair Evidence Photo -->
+<div id="modal-evidence-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-upload-evidence">
+    <div class="modal-header">
+      <h3>Upload After-Repair Evidence</h3>
+      <button class="btn-icon modal-close-evidence">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="evidence-form">
+        <input type="hidden" id="evidence-ca-id" />
+        <div class="form-group">
+          <label>Select Post-Repair Photo *</label>
+          <input type="file" id="evidence-file" accept="image/*" required />
+        </div>
+        <div class="form-group">
+          <label for="evidence-notes">Repair Work Done & Notes</label>
+          <textarea id="evidence-notes" rows="3" placeholder="Describe repair procedure performed..."></textarea>
+        </div>
+        <div id="evidence-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-evidence">Cancel</button>
+          <button type="submit" class="btn-primary">Upload & Request Reinspection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 6: Verify Reinspection Decision -->
+<div id="modal-verify-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-verify-reinspection">
+    <div class="modal-header">
+      <h3>Reinspection Sign-off</h3>
+      <button class="btn-icon modal-close-verify">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="verify-form">
+        <input type="hidden" id="verify-ca-id" />
+        <div class="form-group">
+          <label>Reinspection Verdict *</label>
+          <div class="radio-group">
+            <label class="radio-label good-radio">
+              <input type="radio" name="verify_decision" value="passed" required /> ✅ PASS — Repair Verified (Resolve CAPA)
+            </label>
+            <label class="radio-label defect-radio">
+              <input type="radio" name="verify_decision" value="failed" required /> ❌ FAIL — Defect Persists (Reopen CAPA)
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="verify-notes">Verification Findings & Notes *</label>
+          <textarea id="verify-notes" rows="3" placeholder="State reinspection optical findings..." required></textarea>
+        </div>
+        <div id="verify-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-verify">Cancel</button>
+          <button type="submit" class="btn-primary">Record Reinspection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 7: New Product Registration -->
+<div id="modal-new-product-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-new-product">
+    <div class="modal-header">
+      <h3>Register New Product</h3>
+      <button class="btn-icon modal-close-product">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="new-product-form">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input type="text" id="prod-name" placeholder="e.g. Rolled Steel Plate 8mm" required />
+        </div>
+        <div class="form-group">
+          <label>Product SKU / Code *</label>
+          <input type="text" id="prod-sku" placeholder="e.g. SKU-RSP-08" required />
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <input type="text" id="prod-category" placeholder="e.g. Steel / Casting" required />
+        </div>
+        <div class="form-group">
+          <label>Inspection Criteria</label>
+          <input type="text" id="prod-criteria" placeholder="e.g. Surface cracks, inclusions, pitting < 0.5mm" />
+        </div>
+        <div class="form-group">
+          <label>Defect Probability Threshold (0.01 - 0.99)</label>
+          <input type="number" id="prod-threshold" step="0.05" min="0.1" max="0.9" value="0.5" />
+        </div>
+        <div id="new-prod-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-product">Cancel</button>
+          <button type="submit" class="btn-primary">Register Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 8: New Production Batch -->
+<div id="modal-new-batch-overlay" class="modal-overlay hidden">
+  <div class="modal" id="modal-new-batch">
+    <div class="modal-header">
+      <h3>Create Production Batch</h3>
+      <button class="btn-icon modal-close-new-batch">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="new-batch-form">
+        <div class="form-group">
+          <label>Product *</label>
+          <select id="batch-product-id" class="select-sm" required></select>
+        </div>
+        <div class="form-group">
+          <label>Batch Code *</label>
+          <input type="text" id="batch-code-input" placeholder="e.g. BATCH-2026-005" required />
+        </div>
+        <div class="form-group">
+          <label>Batch Quantity (units) *</label>
+          <input type="number" id="batch-qty-input" min="1" value="250" required />
+        </div>
+        <div class="form-group">
+          <label>Production Line</label>
+          <input type="text" id="batch-line-input" placeholder="e.g. Line 2 - Hot Rolling" value="Line 1" />
+        </div>
+        <div id="new-batch-error" class="error-msg hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost modal-close-new-batch">Cancel</button>
+          <button type="submit" class="btn-primary">Create Batch</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 9: Executive Quality Report (Printable) -->
+<div id="modal-report-overlay" class="modal-overlay hidden">
+  <div class="modal modal-lg" id="modal-quality-report">
+    <div class="modal-header">
+      <h3>Executive Quality Compliance Summary</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn-sm" onclick="window.print()">🖨️ Print / Save PDF</button>
+        <button class="btn-icon modal-close-report">✕</button>
+      </div>
+    </div>
+    <div class="modal-body printable-report" id="report-content-body">
+      <div class="empty-state">Generating quality report...</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

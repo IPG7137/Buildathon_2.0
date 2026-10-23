@@ -1,0 +1,10 @@
+{
+  "0": "GOOD",
+  "1": "DEFECT",
+  "GOOD": 0,
+  "DEFECT": 1,
+  "class_descriptions": {
+    "GOOD": "Defect-free metal casting component (ok_front)",
+    "DEFECT": "Casting surface defect (porosity, pinhole, blowhole, burr, mould drop)"
+  }
+}

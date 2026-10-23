@@ -1,0 +1,78 @@
+{
+  "accuracy": 0.3944055944055944,
+  "confusion_matrix": [
+    [
+      262,
+      0
+    ],
+    [
+      433,
+      20
+    ]
+  ],
+  "class_names": [
+    "GOOD",
+    "DEFECT"
+  ],
+  "per_class": {
+    "GOOD": {
+      "precision": 0.377,
+      "recall": 1.0,
+      "f1": 0.5475,
+      "support": 262
+    },
+    "DEFECT": {
+      "precision": 1.0,
+      "recall": 0.0442,
+      "f1": 0.0846,
+      "support": 453
+    }
+  },
+  "false_acceptance_count": 433,
+  "false_rejection_count": 0,
+  "false_acceptance_rate": 0.9558498896247241,
+  "false_rejection_rate": 0.0,
+  "val_accuracy": 0.4888888888888889,
+  "best_val_accuracy": 0.4888888888888889,
+  "training_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.4126809987834856,
+      "train_acc": 0.8745098039215686,
+      "val_loss": 0.8074535094367133,
+      "val_acc": 0.4711111111111111
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.26825289328893026,
+      "train_acc": 0.9796078431372549,
+      "val_loss": 0.7842175380388896,
+      "val_acc": 0.4888888888888889
+    }
+  ],
+  "config": {
+    "model_arch": "mobilenet_v3_small",
+    "num_classes": 2,
+    "input_size": 224,
+    "batch_size": 64,
+    "epochs": 2,
+    "lr": 0.0002,
+    "weight_decay": 0.0001,
+    "dropout": 0.3,
+    "label_smoothing": 0.1,
+    "use_amp": true,
+    "num_workers": 0,
+    "seed": 42,
+    "normalize_mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "normalize_std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "model_version": "1.0.0"
+  }
+}

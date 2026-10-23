@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#1d4ed8" />
+  <title>Product Quality Inspector</title>
+  <meta name="description" content="Mobile quality inspection app for steel defect detection. Capture images and get instant AI-powered defect predictions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="mobile.css" />
+</head>
+<body>
+
+<!-- Screens -->
+
+<!-- Screen: Login -->
+<div id="screen-login" class="screen active">
+  <div class="splash-bg">
+    <div class="splash-glow"></div>
+  </div>
+  <div class="login-content">
+    <div class="app-logo">
+      <div class="app-logo-icon">⚙️</div>
+      <h1 class="app-name">Product Quality Inspector</h1>
+      <p class="app-tagline">AI-Powered Defect Detection</p>
+    </div>
+    <form id="mobile-login-form" class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="m-username" placeholder="operator1" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="m-password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div id="m-login-error" class="error-pill hidden"></div>
+      <button type="submit" class="btn-primary-full" id="m-login-btn">Sign In</button>
+    </form>
+    <div class="quick-creds">
+      <p>Quick login:</p>
+      <div class="quick-cred-row">
+        <button class="pill-btn" onclick="qFill('operator1','Operator@PS01Demo')">Operator</button>
+        <button class="pill-btn" onclick="qFill('reviewer1','Reviewer@PS01Demo')">Reviewer</button>
+        <button class="pill-btn" onclick="qFill('manager1','Manager@PS01Demo')">Manager</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Home -->
+<div id="screen-home" class="screen">
+  <div class="app-bar">
+    <div class="app-bar-title">
+      <span class="app-bar-icon">⚙️</span>
+      <span>Quality Inspector</span>
+    </div>
+    <button class="icon-btn" id="home-logout-btn" title="Sign out">⏏</button>
+  </div>
+
+  <div class="home-content">
+    <!-- Operator summary -->
+    <div class="home-header">
+      <div class="greeting" id="home-greeting">Good morning, Inspector</div>
+      <div class="today-stats" id="today-stats">
+        <div class="stat-pill">
+          <span class="stat-num" id="stat-today-total">—</span>
+          <span class="stat-label">Today</span>
+        </div>
+        <div class="stat-pill good">
+          <span class="stat-num" id="stat-today-good">—</span>
+          <span class="stat-label">Good</span>
+        </div>
+        <div class="stat-pill defect">
+          <span class="stat-num" id="stat-today-defect">—</span>
+          <span class="stat-label">Defect</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- New inspection -->
+    <button class="new-inspection-btn" id="new-inspection-btn">
+      <span class="new-insp-icon">🔍</span>
+      <div>
+        <div class="new-insp-title">New Inspection</div>
+        <div class="new-insp-sub">Start quality check</div>
+      </div>
+      <span class="arrow">›</span>
+    </button>
+
+    <!-- Current batch info -->
+    <div class="section-title">Current Batch</div>
+    <div class="batch-selector-card" id="batch-selector-card">
+      <div id="selected-batch-display">
+        <div class="no-batch-text">No batch selected</div>
+        <div class="no-batch-sub">Tap "New Inspection" to select a batch</div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="section-title">Recent Inspections</div>
+    <div id="history-list" class="history-list">
+      <div class="history-empty">Your recent inspections will appear here.</div>
+    </div>
+    <button class="load-more-btn hidden" id="load-more-btn">Load more…</button>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-screen="home">
+      <span>🏠</span><span>Home</span>
+    </button>
+    <button class="nav-btn" data-screen="history">
+      <span>📋</span><span>History</span>
+    </button>
+    <button class="nav-btn" data-screen="settings">
+      <span>⚙️</span><span>Settings</span>
+    </button>
+  </nav>
+</div>
+
+<!-- Screen: Select Batch -->
+<div id="screen-batch-select" class="screen">
+  <div class="app-bar">
+    <button class="back-btn" id="batch-back">‹</button>
+    <div class="app-bar-title">New Inspection</div>
+  </div>
+
+  <div class="form-screen-content">
+    <div class="form-card">
+      <div class="form-card-title">Product & Batch</div>
+
+      <div class="form-group">
+        <label>Product *</label>
+        <select id="product-select" class="mobile-select">
+          <option value="">Select product…</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Batch *</label>
+        <select id="batch-select" class="mobile-select">
+          <option value="">Select or enter batch…</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Serial Number (optional)</label>
+        <input type="text" id="serial-number" class="mobile-input" placeholder="e.g. SN-2026-0042" />
+      </div>
+
+      <div class="form-group">
+        <label>Session ID</label>
+        <input type="text" id="session-id" class="mobile-input" placeholder="Auto-generated" readonly />
+        <span class="input-hint">Groups multiple photos of the same item</span>
+      </div>
+
+      <div class="form-group">
+        <label>Operator</label>
+        <input type="text" id="operator-display" class="mobile-input" readonly />
+      </div>
+    </div>
+
+    <div id="batch-form-error" class="error-pill hidden"></div>
+
+    <button class="btn-primary-full" id="proceed-to-capture">
+      Continue to Capture →
+    </button>
+  </div>
+</div>
+
+<!-- Screen: Capture Method Selection -->
+<div id="screen-capture-select" class="screen">
+  <div class="app-bar">
+    <button class="back-btn" id="capture-back">‹</button>
+    <div class="app-bar-title">Choose Capture Method</div>
+  </div>
+
+  <div class="capture-select-content">
+    <div class="capture-info-card" id="capture-batch-info"></div>
+
+    <div class="capture-methods">
+      <button class="capture-method-btn camera" id="use-camera-btn">
+        <span class="method-icon">📷</span>
+        <div class="method-title">Live Camera</div>
+        <div class="method-sub">Use device camera in real-time</div>
+      </button>
+
+      <button class="capture-method-btn photo" id="use-photo-btn">
+        <span class="method-icon">🖼️</span>
+        <div class="method-title">Capture / Upload Photo</div>
+        <div class="method-sub">Take a photo or choose from gallery</div>
+      </button>
+    </div>
+
+    <div class="evidence-note">
+      <span>💡</span>
+      <span>Evidence-Aware: You can add multiple photos to the same inspection session.</span>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Camera -->
+<div id="screen-camera" class="screen">
+  <div class="camera-overlay">
+    <div class="camera-top-bar">
+      <button class="icon-btn-light" id="camera-back">✕</button>
+      <span class="camera-title">Live Inspection</span>
+      <button class="icon-btn-light" id="camera-flip">↕</button>
+    </div>
+
+    <div class="camera-viewport" id="camera-viewport">
+      <video id="camera-video" autoplay muted playsinline></video>
+      <div class="camera-frame">
+        <div class="frame-corner tl"></div>
+        <div class="frame-corner tr"></div>
+        <div class="frame-corner bl"></div>
+        <div class="frame-corner br"></div>
+      </div>
+      <div class="camera-hint" id="camera-hint">Position the item within the frame</div>
+      <div id="m-camera-countdown" class="camera-countdown hidden">2</div>
+      <img id="m-camera-preview-frozen" class="hidden" alt="Frozen capture" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:4" />
+    </div>
+
+    <div class="camera-controls">
+      <button class="camera-capture-btn" id="camera-capture-btn" title="Capture and Inspect">
+        <div class="capture-inner"></div>
+      </button>
+      <div id="m-camera-review-actions" class="hidden" style="display:flex;gap:12px;z-index:10">
+        <button class="btn-sm-light" id="m-btn-retake" style="padding:10px 18px">🔄 Retake</button>
+        <button class="btn-sm-light" id="m-btn-accept" style="background:var(--green,#3fb950);color:#fff;border-color:transparent;padding:10px 18px;font-weight:700">✅ Accept & Inspect</button>
+      </div>
+    </div>
+
+    <div id="camera-error" class="camera-error-card hidden">
+      <p id="camera-error-msg">Camera unavailable</p>
+      <button class="btn-sm-light" id="camera-switch-photo">Use Photo Instead</button>
+    </div>
+  </div>
+  <canvas id="camera-canvas" style="display:none"></canvas>
+</div>
+
+<!-- Screen: Photo Capture -->
+<div id="screen-photo" class="screen">
+  <div class="app-bar">
+    <button class="back-btn" id="photo-back">‹</button>
+    <div class="app-bar-title">Photo Inspection</div>
+  </div>
+
+  <div class="photo-screen-content">
+    <div class="photo-preview-area" id="photo-preview-area">
+      <div class="photo-placeholder" id="photo-placeholder">
+        <div class="placeholder-icon">🖼️</div>
+        <div class="placeholder-text">No photo selected</div>
+      </div>
+      <img id="photo-preview-img" src="" alt="Preview" class="hidden" />
+    </div>
+
+    <div class="photo-actions">
+      <label class="photo-action-btn camera-icon" for="photo-file-take">
+        📸 Take Photo
+        <input type="file" id="photo-file-take" accept="image/*" capture="environment" style="display:none" />
+      </label>
+      <label class="photo-action-btn gallery-icon" for="photo-file-gallery">
+        🗂️ Choose from Gallery
+        <input type="file" id="photo-file-gallery" accept="image/*" style="display:none" />
+      </label>
+    </div>
+
+    <div id="photo-meta" class="photo-meta hidden">
+      <span id="photo-meta-size"></span> • <span id="photo-meta-type"></span>
+    </div>
+
+    <div id="photo-error" class="error-pill hidden"></div>
+
+    <button class="btn-primary-full" id="inspect-photo-btn" disabled>
+      🔬 Inspect This Photo
+    </button>
+
+    <button class="btn-ghost-full hidden" id="add-more-photos-btn">
+      ➕ Add Another Photo (Same Session)
+    </button>
+  </div>
+</div>
+
+<!-- Screen: Processing -->
+<div id="screen-processing" class="screen">
+  <div class="processing-content">
+    <div class="processing-spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-icon">⚙️</div>
+    </div>
+    <div class="processing-title">Analyzing Image…</div>
+    <div class="processing-sub" id="processing-sub">Running AI defect inspection</div>
+    <div class="processing-steps">
+      <div class="step active" id="step-validate">✓ Validating image</div>
+      <div class="step" id="step-infer">⟳ Running inference</div>
+      <div class="step" id="step-save">○ Saving result</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: Result -->
+<div id="screen-result" class="screen">
+  <div class="result-header" id="result-header">
+    <div class="result-status-icon" id="result-icon">—</div>
+    <div class="result-status-text" id="result-status">—</div>
+    <div class="result-confidence" id="result-confidence">—</div>
+  </div>
+
+  <div class="result-content">
+    <div class="result-image-container">
+      <img id="result-image" src="" alt="Inspected item" class="result-image hidden" />
+    </div>
+
+    <div class="result-cards">
+
+      <div class="result-card">
+        <div class="result-card-title">Inspection Details</div>
+        <div class="result-field">
+          <span class="result-label">Batch</span>
+          <span class="result-value" id="res-batch">—</span>
+        </div>
+        <div class="result-field">
+          <span class="result-label">Inspection ID</span>
+          <span class="result-value mono" id="res-id">—</span>
+        </div>
+        <div class="result-field">
+          <span class="result-label">Operator</span>
+          <span class="result-value" id="res-operator">—</span>
+        </div>
+        <div class="result-field">
+          <span class="result-label">Timestamp</span>
+          <span class="result-value" id="res-timestamp">—</span>
+        </div>
+        <div class="result-field">
+          <span class="result-label">Model Version</span>
+          <span class="result-value" id="res-model-ver">—</span>
+        </div>
+        <div class="result-field">
+          <span class="result-label">Inference Time</span>
+          <span class="result-value" id="res-infer-time">—</span>
+        </div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-card-title">Model Scores</div>
+        <div class="score-row">
+          <span class="score-label">Good</span>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill green" id="score-good-fill"></div>
+            </div>
+          </div>
+          <span class="score-pct" id="score-good-pct">—</span>
+        </div>
+        <div class="score-row">
+          <span class="score-label">Defect</span>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill red" id="score-defect-fill"></div>
+            </div>
+          </div>
+          <span class="score-pct" id="score-defect-pct">—</span>
+        </div>
+        <div class="score-note">
+          ⚠️ Scores are model outputs, not calibrated probabilities. Decisions require authorised QC sign-off.
+        </div>
+      </div>
+
+      <div class="result-card action" id="action-card">
+        <div class="result-card-title">Recommended Next Step</div>
+        <div class="action-text" id="action-text">—</div>
+        <div class="action-disclaimer">
+          This is an AI recommendation only. Follow your authorised quality procedure.
+          AI predictions are not a substitute for mandatory QC sign-off.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="result-actions">
+      <button class="btn-primary-full" id="new-inspection-from-result">
+        🔍 New Inspection
+      </button>
+      <button class="btn-ghost-full" id="add-photo-same-session">
+        📷 Add Photo (Same Session)
+      </button>
+      <button class="btn-ghost-full" id="reinspect-btn">
+        🔄 Reinspect This Item
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen: History -->
+<div id="screen-history" class="screen">
+  <div class="app-bar">
+    <div class="app-bar-title">Inspection History</div>
+  </div>
+  <div class="history-full-list" id="history-full-list">
+    <div class="history-empty">Loading history…</div>
+  </div>
+</div>
+
+<!-- Screen: Settings -->
+<div id="screen-settings" class="screen">
+  <div class="app-bar">
+    <div class="app-bar-title">Settings</div>
+  </div>
+  <div class="settings-content">
+    <div class="settings-group">
+      <div class="settings-label">Backend API URL</div>
+      <input type="url" id="api-url-setting" class="mobile-input" />
+      <button class="btn-sm-inline" id="save-api-url">Save</button>
+    </div>
+    <div class="settings-group">
+      <div class="settings-label">App Version</div>
+      <div class="settings-value">PS01 Quality Inspector v1.0.0</div>
+    </div>
+    <div class="settings-group">
+      <div class="settings-label">Model Status</div>
+      <div class="settings-value" id="settings-model-status">Checking…</div>
+    </div>
+    <div class="settings-group">
+      <div class="settings-label">Signed In As</div>
+      <div class="settings-value" id="settings-user"></div>
+    </div>
+    <button class="btn-ghost-full" id="settings-logout">Sign Out</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="m-toast-container" class="m-toast-container"></div>
+
+<script src="mobile.js"></script>
+</body>
+</html>

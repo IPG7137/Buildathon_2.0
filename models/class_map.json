@@ -1,0 +1,42 @@
+{
+  "binary": {
+    "0": "GOOD",
+    "1": "DEFECT"
+  },
+  "defect_classes": {
+    "1": "Class 1 - Scratches",
+    "2": "Class 2 - Inclusions",
+    "3": "Class 3 - Patches",
+    "4": "Class 4 - Pitted Surface"
+  },
+  "label_names": [
+    "GOOD",
+    "DEFECT"
+  ],
+  "num_classes": 2,
+  "model_type": "binary_classification",
+  "input_size": [
+    224,
+    224
+  ],
+  "normalize_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "normalize_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "model_arch": "mobilenet_v3_small",
+  "dataset": "Severstal Steel Defect Detection",
+  "description": "Binary classifier: GOOD (no defect) vs DEFECT (any defect class present)",
+  "defect_class_names": {
+    "0": "GOOD",
+    "1": "DEFECT_CLASS1_SCRATCHES",
+    "2": "DEFECT_CLASS2_INCLUSIONS",
+    "3": "DEFECT_CLASS3_PATCHES",
+    "4": "DEFECT_CLASS4_PITTED"
+  }
+}

@@ -1,0 +1,10 @@
+Confusion Matrix (rows=true, cols=pred)
+Dataset: casting
+Classes: ['GOOD', 'DEFECT']
+
+  GOOD      : [262, 0]
+  DEFECT    : [433, 20]
+
+Accuracy: 0.3944
+False Acceptance Rate: 0.9558
+False Rejection Rate: 0.0000

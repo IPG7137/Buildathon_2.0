@@ -1,0 +1,17 @@
+{
+  "name": "Product Quality Inspector",
+  "short_name": "QualityInsp",
+  "description": "AI-powered steel defect inspection app for mobile operators",
+  "start_url": "/mobile_app/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1f5fa",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjggMTI4Ij48cmVjdCB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgcng9IjI0IiBmaWxsPSIjMGQxMTE3Ii8+PHRleHQgeT0iLjllbSIgZm9udC1zaXplPSI5NiIgeD0iMTYiPuKaaOwvdGV4dD48L3N2Zz4=",
+      "sizes": "128x128",
+      "type": "image/svg+xml"
+    }
+  ]
+}

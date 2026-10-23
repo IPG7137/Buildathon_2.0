@@ -1,0 +1,99 @@
+{
+  "accuracy": 0.8407079646017699,
+  "confusion_matrix": [
+    [
+      179,
+      30
+    ],
+    [
+      42,
+      201
+    ]
+  ],
+  "class_names": [
+    "GOOD",
+    "DEFECT"
+  ],
+  "per_class": {
+    "GOOD": {
+      "precision": 0.81,
+      "recall": 0.8565,
+      "f1": 0.8326,
+      "support": 209
+    },
+    "DEFECT": {
+      "precision": 0.8701,
+      "recall": 0.8272,
+      "f1": 0.8481,
+      "support": 243
+    }
+  },
+  "false_acceptance_count": 42,
+  "false_rejection_count": 30,
+  "false_acceptance_rate": 0.1728395061728395,
+  "false_rejection_rate": 0.14354066985645933,
+  "val_accuracy": 0.799554565701559,
+  "best_val_accuracy": 0.799554565701559,
+  "training_history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.5437036414638254,
+      "train_acc": 0.753692234397332,
+      "val_loss": 0.6123704703188686,
+      "val_acc": 0.6258351893095768
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4330838656442514,
+      "train_acc": 0.8470700333492139,
+      "val_loss": 0.568792890599682,
+      "val_acc": 0.6748329621380846
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.4053569787624281,
+      "train_acc": 0.8646974749880896,
+      "val_loss": 0.5544949969098404,
+      "val_acc": 0.688195991091314
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.369233080010689,
+      "train_acc": 0.894235350166746,
+      "val_loss": 0.5080736848984104,
+      "val_acc": 0.7616926503340757
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3629216223231039,
+      "train_acc": 0.88804192472606,
+      "val_loss": 0.46315327943831613,
+      "val_acc": 0.799554565701559
+    }
+  ],
+  "config": {
+    "model_arch": "mobilenet_v3_small",
+    "num_classes": 2,
+    "input_size": 224,
+    "batch_size": 64,
+    "epochs": 5,
+    "lr": 0.0003,
+    "weight_decay": 0.0001,
+    "dropout": 0.3,
+    "label_smoothing": 0.1,
+    "use_amp": true,
+    "num_workers": 0,
+    "seed": 42,
+    "normalize_mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "normalize_std": [
+      0.229,
+      0.224,
+      0.225
+    ],
+    "model_version": "1.0.0"
+  }
+}
